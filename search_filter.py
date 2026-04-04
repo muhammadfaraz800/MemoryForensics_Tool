@@ -1,52 +1,32 @@
-# search_filter.py
-# Yeh function processes ki list mein search karega
+# Advanced search function — name, PID, PPID, time 
 
 def filter_processes(process_list, search_term):
     """
-    Ye function process list mein se wo processes dhundlega
-    jinke naam mein search_term hai
+    Process search in:
+    - name
+    - pid (as string)
+    - ppid (as string)
+    - time (creation time)
     """
-    # Agar search_term khali hai to saari list wapas kar do
     if not search_term:
         return process_list
     
-    # search_term ko chota (lowercase) kar do taaki a, A same lage
     search_term = search_term.lower()
-    
-    # Filter logic: har process check karo
     result = []
+    
     for process in process_list:
-        # process ka naam bhi lowercase karo aur check karo
-        if search_term in process['name'].lower():
+        # Checking every field
+        if (search_term in process.get('name', '').lower() or
+            search_term in str(process.get('pid', '')).lower() or
+            search_term in str(process.get('ppid', '')).lower() or
+            search_term in process.get('time', '').lower()):
             result.append(process)
     
     return result
 
 
-# Test code - yeh check karne ke liye ki function sahi kaam kar raha hai
-if __name__ == "__main__":
-    # Pehle dummy data import karo
-    from dummy_data import sample_processes
-    
-    # Test 1: "malware" search karo
-    result1 = filter_processes(sample_processes, "malware")
-    print("Malware search result:", result1)
-    
-    # Test 2: "bash" search karo
-    result2 = filter_processes(sample_processes, "bash")
-    print("Bash search result:", result2)
-    
-    # Test 3: kuch bhi nahi likha (empty search)
-    result3 = filter_processes(sample_processes, "")
-    print("Empty search result (sab kuch aana chahiye):", result3)
-
-
-    # Network connections search function
+# Network connections search 
 def filter_connections(conn_list, search_term):
-    """
-    Ye function connections ki list mein search karega
-    IP address, port, protocol, ya PID mein se match karega
-    """
     if not search_term:
         return conn_list
     
@@ -54,7 +34,6 @@ def filter_connections(conn_list, search_term):
     result = []
     
     for conn in conn_list:
-        # Check in multiple fields
         if (search_term in str(conn.get('pid', '')).lower() or
             search_term in conn.get('local_ip', '').lower() or
             search_term in str(conn.get('local_port', '')).lower() or
@@ -66,16 +45,17 @@ def filter_connections(conn_list, search_term):
     return result
 
 
-# Test code (neechay likho)
+# Test code
 if __name__ == "__main__":
     from dummy_data import sample_processes, sample_connections
     
-    # Processes test
-    print("=== PROCESS SEARCH ===")
-    print(filter_processes(sample_processes, "malware"))
+    print("=== PROCESS SEARCH TESTS ===")
+    print("1. Search by name 'malware':", filter_processes(sample_processes, "malware"))
+    print("2. Search by PID '1234':", filter_processes(sample_processes, "1234"))
+    print("3. Search by PPID '1':", filter_processes(sample_processes, "1"))
+    print("4. Search by time '10:10':", filter_processes(sample_processes, "10:10"))
     
-    # Connections test
-    print("\n=== CONNECTIONS SEARCH ===")
-    print(filter_connections(sample_connections, "185.130"))  # IP search
-    print(filter_connections(sample_connections, "4444"))      # Port search
-    print(filter_connections(sample_connections, "TCP"))       # Protocol search
+    print("\n=== CONNECTION SEARCH TESTS ===")
+    print("5. Search by IP '185.130':", filter_connections(sample_connections, "185.130"))
+    print("6. Search by port '4444':", filter_connections(sample_connections, "4444"))
+    print("7. Search by protocol 'UDP':", filter_connections(sample_connections, "udp"))
