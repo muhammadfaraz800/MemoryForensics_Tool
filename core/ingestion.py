@@ -16,7 +16,7 @@ class MemoryIngestor:
         self.file_path = os.path.abspath(file_path)
         
         # SECURITY FIX: Enforce whitelisted extensions to prevent arbitrary binary loading
-        allowed_exts = ('.raw', '.dd', '.vmem', '.img')
+        allowed_exts = ('.raw', '.dd', '.vmem', '.img', '.mem')
         if not self.file_path.endswith(allowed_exts):
             raise ValueError(f"Invalid memory dump extension. Must be one of: {allowed_exts}")
 
