@@ -21,7 +21,7 @@
 **Requirements**: REQ-02
 
 ### Phase 3: Core Engine Parsing (`task_struct`)
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Find `init_task` (PID 1) and correctly walk through the `task_struct` list to grab PIDs, names, PPIDs, and timestamps.
 **Requirements**: REQ-03, REQ-04, REQ-05
 
