@@ -18,7 +18,7 @@ def extract_network_connections(mapped_memory, struct_addr):
     """
     connections = []
     try:
-        # 1. task_struct -> files_struct (Notice the is back!)
+        # 1. task_struct -> files_struct
         mapped_memory.seek(struct_addr + OFFSET_FILES)
         files_struct_ptr = struct.unpack("<Q", mapped_memory.read(POINTER_SIZE))
         if files_struct_ptr == 0:
