@@ -24,24 +24,26 @@ def prepare_data_for_gui(raw_processes, raw_connections):
     # Clean Processes (Handle null values)
     cleaned_processes = []
     for p in raw_processes:
+        # SECURITY FIX: Enforce stringent type mapping and string bounds
         clean_p = {
-            'pid': p.get('pid', 'N/A'),
-            'name': p.get('name', 'Unknown'),
-            'ppid': p.get('ppid', 'N/A'),
-            'time': p.get('time', 'N/A')
+            'pid': str(p.get('pid', 'N/A'))[:20],
+            'name': str(p.get('name', 'Unknown'))[:255],
+            'ppid': str(p.get('ppid', 'N/A'))[:20],
+            'time': str(p.get('time', 'N/A'))[:50]
         }
         cleaned_processes.append(clean_p)
     
     # Clean Connections
     cleaned_connections = []
     for c in raw_connections:
+        # SECURITY FIX: Enforce string type casting and guard maximum lengths
         clean_c = {
-            'pid': c.get('pid', 'N/A'),
-            'local_ip': c.get('local_ip', 'N/A'),
-            'local_port': c.get('local_port', 'N/A'),
-            'remote_ip': c.get('remote_ip', 'N/A'),
-            'remote_port': c.get('remote_port', 'N/A'),
-            'protocol': c.get('protocol', 'N/A')
+            'pid': str(c.get('pid', 'N/A'))[:20],
+            'local_ip': str(c.get('local_ip', 'N/A'))[:50],
+            'local_port': str(c.get('local_port', 'N/A'))[:10],
+            'remote_ip': str(c.get('remote_ip', 'N/A'))[:50],
+            'remote_port': str(c.get('remote_port', 'N/A'))[:10],
+            'protocol': str(c.get('protocol', 'N/A'))[:10]
         }
         cleaned_connections.append(clean_c)
     
