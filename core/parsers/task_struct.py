@@ -18,15 +18,16 @@ class TaskStructIterator:
     def virt_to_phys(self, virt_addr):
         """
         Converts a Linux kernel virtual address to a physical file offset.
-        
-        In x86_64 Linux, kernel addresses starting with 0xffff88... live in
-        the "direct mapping" region. We simply subtract PAGE_OFFSET to get
-        the real byte position inside the .raw dump file.
-        
-        If the address is already small enough to be physical, return it as-is.
+        Handles both the Kernel Text Region and the Direct Mapping Region.
         """
+        # 1. Kernel Text/Data Region (where init_task is often compiled)
+        if virt_addr >= 0xffffffff80000000:
+            return virt_addr - 0xffffffff80000000
+            
+        # 2. Direct Mapping Region (dynamically allocated task_structs)
         if virt_addr >= PAGE_OFFSET:
             return virt_addr - PAGE_OFFSET
+            
         return virt_addr
 
     def walk_tasks(self):
