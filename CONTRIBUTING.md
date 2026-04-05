@@ -15,7 +15,7 @@ Our development is strictly structured into 5 distinct domains. This centralized
 - **Workflow:** Once Role 1 gives you the memory boundaries of an `init_task`, use Python's `struct` module to walk the doubly linked lists of `task_struct` and `mm_struct`, mapping PIDs to process names and creation times.
 
 ### Role 3: Network Forensics Analyst
-- **Domain:** `/core/parsers/network.py` (To Be Built)
+- **Domain:** `/core/parsers/network.py` 
 - **Objective:** Uncover all active internal network mappings and remote socket connections.
 - **Workflow:** You parse the Network Namespace structures associated with Role 2's processes, decoding Local IP, Remote IP, and Port protocols accurately.
 
