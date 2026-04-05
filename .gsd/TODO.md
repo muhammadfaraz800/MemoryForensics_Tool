@@ -1,4 +1,3 @@
-# TODO.md
+# Project Todos
 
-- [ ] Implement Phase 1: file reading using mmap.
-- [ ] Determine typical Linux banner string format.
+- [x] Configure backend runner to use real raw dump inside `memDumpFiles/` directory instead of dummy buffer. `high` — 2026-04-05

@@ -10,9 +10,8 @@ from config.config import INIT_TASK_OFFSET
 def main():
     print("Starting Memory Forensics Engine...")
     
-    # We pretend this is our generic raw memory image
-    # Note: Make sure a real memory dump is placed in this folder before running!
-    memory_dump_file = "sample_memory.raw"
+    # We are now testing against the actual laboratory memory dump!
+    memory_dump_file = "memDumpFiles/MemoryDump_Lab3.raw"
     
     if not os.path.exists(memory_dump_file):
         print(f"Waiting for {memory_dump_file} to be added...")
