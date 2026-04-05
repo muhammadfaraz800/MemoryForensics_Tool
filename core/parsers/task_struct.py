@@ -1,6 +1,6 @@
 import struct
 import logging
-from config.config import OFFSET_TASKS, POINTER_SIZE
+from config.config import OFFSET_TASKS, POINTER_SIZE, PAGE_OFFSET
 
 logger = logging.getLogger(__name__)
 
@@ -8,19 +8,34 @@ class TaskStructIterator:
     """
     Role 1 Core Engine Component.
     Iterates through the doubly linked list of tasks in the Linux memory mapping.
-    Yields the physical/virtual layout boundary addresses for Role 2 to parse text definitions from.
+    Yields PHYSICAL addresses that Role 2 can safely seek() to in the raw file.
     """
     def __init__(self, mapped_memory, init_task_offset):
         self.mapped_memory = mapped_memory
         self.init_task_offset = init_task_offset
         self.visited = set()
 
+    def virt_to_phys(self, virt_addr):
+        """
+        Converts a Linux kernel virtual address to a physical file offset.
+        
+        In x86_64 Linux, kernel addresses starting with 0xffff88... live in
+        the "direct mapping" region. We simply subtract PAGE_OFFSET to get
+        the real byte position inside the .raw dump file.
+        
+        If the address is already small enough to be physical, return it as-is.
+        """
+        if virt_addr >= PAGE_OFFSET:
+            return virt_addr - PAGE_OFFSET
+        return virt_addr
+
     def walk_tasks(self):
         """
         Generator that traverses the tasks.next linked list.
-        Yields the absolute address of each discovered task_struct.
+        Yields the PHYSICAL address of each discovered task_struct.
         """
-        current_task_addr = self.init_task_offset
+        # Convert the starting virtual address to physical
+        current_task_addr = self.virt_to_phys(self.init_task_offset)
         
         while True:
             # Shield against circular looping DoS
@@ -30,18 +45,18 @@ class TaskStructIterator:
                 
             self.visited.add(current_task_addr)
             
-            # Yield the current task_struct address for Role 2
-            yield current_task_addr
-            
             # Find the pointer to the next task's list_head
             next_ptr_addr = current_task_addr + OFFSET_TASKS
             
             # Memory mapping bound check
             if next_ptr_addr + POINTER_SIZE > self.mapped_memory.size():
-                logger.error("Out of bounds pointer read.")
+                logger.error(f"Out of bounds pointer read at {hex(next_ptr_addr)}.")
                 break
+
+            # Yield the current task_struct PHYSICAL address for Role 2
+            yield current_task_addr
                 
-            # Read 8 bytes
+            # Read 8 bytes at the tasks.next pointer location
             self.mapped_memory.seek(next_ptr_addr)
             pointer_bytes = self.mapped_memory.read(POINTER_SIZE)
             
@@ -53,9 +68,13 @@ class TaskStructIterator:
                 break
                 
             # next_list_head points to the OFFSET_TASKS field of the next task_struct.
-            # To get the actual next task_struct base address, we subtract the offset.
-            current_task_addr = next_list_head - OFFSET_TASKS
+            # Subtract the offset to get the base virtual address of the next task_struct.
+            next_virt_addr = next_list_head - OFFSET_TASKS
             
-            # If we looped back to init_task smoothly, we are done
-            if current_task_addr == self.init_task_offset:
+            # Convert virtual address to physical file offset
+            current_task_addr = self.virt_to_phys(next_virt_addr)
+            
+            # If we looped back to init_task, the full list has been traversed
+            if current_task_addr == self.virt_to_phys(self.init_task_offset):
                 break
+

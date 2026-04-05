@@ -21,3 +21,9 @@ OFFSET_PID = 0x4d8
 OFFSET_COMM = 0x6e8
 POINTER_SIZE = 8
 
+# Virtual-to-Physical Address Translation
+# In Linux x86_64, kernel virtual addresses starting with 0xffff88...
+# are in the "direct mapping" region. To convert them to physical
+# offsets inside the .raw file, we subtract this base value.
+PAGE_OFFSET = 0xffff880000000000
+
